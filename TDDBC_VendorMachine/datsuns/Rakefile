@@ -1,0 +1,26 @@
+require 'rake/clean'
+
+CC = "g++ -std=c++11"
+
+task :default => "vending_machine"
+
+SRCS = FileList["**/*.cpp"]
+OBJS = SRCS.ext('o')
+
+OPTION = '-L./lib -lgtest -lgtest_main'
+
+file "vending_machine" => OBJS do |t|
+	  sh "#{CC} #{OPTION} -o #{t.name} #{t.prerequisites.join(' ')}" 
+end
+
+rule '.o' => '.cpp' do |t|
+	  sh "#{CC} -I./inc -c #{t.source}"
+end
+
+task "test" do
+	  sh "./vending_machine"
+end
+
+CLEAN.include(OBJS)
+CLOBBER.include("vending_machine")
+
