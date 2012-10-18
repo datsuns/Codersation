@@ -1,34 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace VendingMachine
 {
     public class VendingMachine
     {
+        private readonly DrinkStocker _drinkStock = new DrinkStocker();
+        private readonly MoneyStocker _moneyStocker;
+
+
         public VendingMachine()
+            : this(new StandardMoneyAcceptor())
         {
-            TotalAmount = 0;
         }
 
-        public int TotalAmount { get; private set; }
-
-        public void InsertMoeny(int amount)
+        public VendingMachine(IMoneyAcceptor acceptor)
         {
-            if (amount == 10 || amount == 50 || amount == 100 || amount == 500 || amount == 1000)
-            TotalAmount += amount;
+            _moneyStocker = new MoneyStocker(acceptor);
         }
 
-        public void AddDrink(Drink drink)
+        public int TotalAmount
         {
-            
+            get { return _moneyStocker.InsertedMoneyAmount; }
         }
 
-        public  Drink BuyDrink(Drink drink)
+        public void InsertMoney(Money money)
         {
-            return drink;
+            _moneyStocker.Insert(money);
+        }
+
+        public void AddDrink(IEnumerable<Drink> drink)
+        {
+            _drinkStock.AddDrinks(drink);
+        }
+
+        public Drink BuyDrink(string drinkName)
+        {
+            if (!CheckCanBuyDrinkNamed(drinkName))
+            {
+                return null;
+            }
+            var boughtDrink = _drinkStock.Take(drinkName);
+            _moneyStocker.TakeMoney(boughtDrink == null ? 0 : boughtDrink.Price);
+            return boughtDrink;
+        }
+
+        private bool CheckCanBuyDrinkNamed(string drinkName)
+        {
+            return _drinkStock.HasItem(drinkName)
+                   && _drinkStock.GetItemPrice(drinkName) <= TotalAmount
+                   && _moneyStocker.CanRetuenJustMoneyIfUsed(_drinkStock.GetItemPrice(drinkName));
+        }
+
+        public IEnumerable<Money> PayBack()
+        {
+            return _moneyStocker.PayBack();
+        }
+
+        public void SetStock(IEnumerable<Money> moneys)
+        {
+            foreach (var money in moneys)
+            {
+                _moneyStocker.Stock(money);
+            }
         }
     }
 }
