@@ -6,6 +6,7 @@ CC = "g++"
 task :default => "testVendingMachie"
 
 GTEST_DIR = '~/work/programming/c/lib/gtest-1.6.0'
+OUT_DIR = './out'
 
 SRCS = FileList["**/*.cpp"]
 OBJS = SRCS.ext('o')
@@ -14,7 +15,7 @@ LOPTION = "#{GTEST_DIR}/make/gtest_main.a"
 INC_OPTION = "-I #{GTEST_DIR}/include"
 
 file "testVendingMachie" => OBJS do |t|
-  sh "#{CC} #{LOPTION} -o #{t.name} #{t.prerequisites.join(' ')}" 
+  sh "#{CC} #{LOPTION} -o #{OUT_DIR}/#{t.name} #{t.prerequisites.join(' ')}" 
 end
 
 rule '.o' => '.cpp' do |t|
@@ -22,7 +23,7 @@ rule '.o' => '.cpp' do |t|
 end
 
 task "run" do
-  sh "./testVendingMachie"
+  sh "#{OUT_DIR}/testVendingMachie"
 end
 
 task "lib" do
