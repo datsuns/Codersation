@@ -15,6 +15,7 @@ LOPTION = "#{GTEST_DIR}/make/gtest_main.a"
 INC_OPTION = "-I #{GTEST_DIR}/include"
 
 file "testVendingMachie" => OBJS do |t|
+  sh "mkdir -p #{OUT_DIR}"
   sh "#{CC} #{LOPTION} -o #{OUT_DIR}/#{t.name} #{t.prerequisites.join(' ')}" 
 end
 
