@@ -1,22 +1,28 @@
 require 'rake/clean'
 
-#CC = "g++ -std=c++11"
-CC = "g++"
+#CC = 'g++ -std=c++11'
+CC = 'g++ '
 
 task :default => "testVendingMachie"
 
-GTEST_DIR = '~/work/programming/c/lib/gtest-1.6.0'
 OUT_DIR = './out'
 
-SRCS = FileList["**/*.cpp"]
+#SRCS = FileList["**/*.cpp"]
+SRCS = FileList["**/*money*.cpp"]
 OBJS = SRCS.ext('o')
 
-LOPTION = "#{GTEST_DIR}/make/gtest_main.a"
-INC_OPTION = "-I #{GTEST_DIR}/include"
+LOPTION = "./test/lib/gtest_main.a"
+INC_OPTION = [
+               "./test/include",
+               "./inc",
+             ].map!{ |s| " -I #{s} " }
 
 file "testVendingMachie" => OBJS do |t|
   sh "mkdir -p #{OUT_DIR}"
   sh "#{CC} #{LOPTION} -o #{OUT_DIR}/#{t.name} #{t.prerequisites.join(' ')}" 
+end
+
+task "test" do
 end
 
 rule '.o' => '.cpp' do |t|
@@ -28,7 +34,9 @@ task "run" do
 end
 
 task "lib" do
+  GTEST_DIR = '~/work/programming/c/lib/gtest-1.6.0'
   sh "cd #{GTEST_DIR}/make && make clean && make"
+  sh "cp #{GTEST_DIR}/make/gtest_main.a ./test/lib"
 end
 
 CLEAN.include(OBJS)
